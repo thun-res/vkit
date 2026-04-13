@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-04-13" agent="vkit-doc" type="device">
+  <diagram id="build-workflow" name="Build Workflow">
+    <mxGraphModel dx="1200" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="title" value="VKit Build Workflow" style="text;html=1;fontSize=22;fontStyle=1;align=center;verticalAlign=middle;whiteSpace=wrap;fillColor=none;strokeColor=none;fontColor=#1a1a2e;" vertex="1" parent="1">
+          <mxGeometry x="400" y="10" width="400" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- Phase 1: Setup -->
+        <mxCell id="phase1_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;dashed=1;arcSize=6;" vertex="1" parent="1">
+          <mxGeometry x="40" y="70" width="1120" height="140" as="geometry"/>
+        </mxCell>
+        <mxCell id="phase1_label" value="Phase 1: Environment Setup" style="text;html=1;fontSize=13;fontStyle=1;align=left;verticalAlign=middle;fillColor=none;strokeColor=none;fontColor=#1565C0;" vertex="1" parent="1">
+          <mxGeometry x="55" y="72" width="250" height="25" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="s1" value="source&#xa;vkit-setup.sh" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#1565C0;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="70" y="110" width="130" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="s2" value="Detect Host&#xa;Platform &amp; Arch" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#1565C0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="240" y="110" width="130" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="s3" value="Set VKIT_*&#xa;Environment Vars" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#1565C0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="410" y="110" width="130" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="s4" value="Register Build&#xa;Commands&#xa;(mm, mmm, build...)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#1565C0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="580" y="110" width="150" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="s5" value="Configure&#xa;Toolchain &amp;&#xa;Host Tools" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#1565C0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="770" y="110" width="130" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="s6" value="Create Output&#xa;Directories&#xa;build/ prebuilt/..." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#1565C0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="940" y="110" width="140" height="50" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="sa1" style="exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeColor=#1565C0;strokeWidth=2;" edge="1" source="s1" target="s2" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="sa2" style="exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeColor=#1565C0;strokeWidth=2;" edge="1" source="s2" target="s3" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="sa3" style="exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeColor=#1565C0;strokeWidth=2;" edge="1" source="s3" target="s4" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="sa4" style="exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeColor=#1565C0;strokeWidth=2;" edge="1" source="s4" target="s5" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="sa5" style="exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeColor=#1565C0;strokeWidth=2;" edge="1" source="s5" target="s6" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- Phase 2: Import -->
+        <mxCell id="phase2_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;dashed=1;arcSize=6;" vertex="1" parent="1">
+          <mxGeometry x="40" y="240" width="1120" height="140" as="geometry"/>
+        </mxCell>
+        <mxCell id="phase2_label" value="Phase 2: Repository Import (First Time)" style="text;html=1;fontSize=13;fontStyle=1;align=left;verticalAlign=middle;fillColor=none;strokeColor=none;fontColor=#2E7D32;" vertex="1" parent="1">
+          <mxGeometry x="55" y="242" width="350" height="25" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="i1" value="make import&#xa;&lt;variant&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#2E7D32;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="70" y="280" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="i2" value="Clone&#xa;setup/" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#2E7D32;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="230" y="285" width="100" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="i3" value="Clone&#xa;prebuilt/" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#2E7D32;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="370" y="285" width="100" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="i4" value="Clone&#xa;thirdparty/" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#2E7D32;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="510" y="285" width="100" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="i5" value="Clone&#xa;vendor/" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#2E7D32;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="650" y="285" width="100" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="i6" value="Clone&#xa;middleware/ &amp; app/" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#2E7D32;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="790" y="285" width="110" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="i7" value="Ready&#xa;to Build!" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#A5D6A7;strokeColor=#2E7D32;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="940" y="285" width="100" height="50" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="ia1" style="exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeColor=#2E7D32;strokeWidth=2;" edge="1" source="i1" target="i2" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ia2" style="exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeColor=#2E7D32;strokeWidth=2;" edge="1" source="i2" target="i3" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ia3" style="exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeColor=#2E7D32;strokeWidth=2;" edge="1" source="i3" target="i4" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ia4" style="exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeColor=#2E7D32;strokeWidth=2;" edge="1" source="i4" target="i5" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ia5" style="exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeColor=#2E7D32;strokeWidth=2;" edge="1" source="i5" target="i6" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ia6" style="exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeColor=#2E7D32;strokeWidth=2;" edge="1" source="i6" target="i7" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- Phase 3: Build -->
+        <mxCell id="phase3_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#E65100;dashed=1;arcSize=6;" vertex="1" parent="1">
+          <mxGeometry x="40" y="410" width="1120" height="210" as="geometry"/>
+        </mxCell>
+        <mxCell id="phase3_label" value="Phase 3: Build (mm_all or layer-by-layer)" style="text;html=1;fontSize=13;fontStyle=1;align=left;verticalAlign=middle;fillColor=none;strokeColor=none;fontColor=#E65100;" vertex="1" parent="1">
+          <mxGeometry x="55" y="412" width="350" height="25" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="b1" value="mm_thirdparty&#xa;&#xa;Read thirdparty.cfg&#xa;Build each component" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#E65100;fontSize=11;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry x="70" y="448" width="200" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="b2" value="mm_vendor&#xa;&#xa;Read vendor.cfg&#xa;Build vendor components" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#E65100;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="320" y="448" width="200" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="b3" value="mm_middleware&#xa;&#xa;Read middleware.cfg&#xa;Build built-in and&#xa;custom middleware" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#E65100;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="570" y="448" width="200" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="b4" value="mm_app&#xa;&#xa;Read app.cfg&#xa;Build applications" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#E65100;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="820" y="448" width="200" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="ba1" style="exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeColor=#E65100;strokeWidth=2;" edge="1" source="b1" target="b2" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ba2" style="exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeColor=#E65100;strokeWidth=2;" edge="1" source="b2" target="b3" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ba3" style="exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeColor=#E65100;strokeWidth=2;" edge="1" source="b3" target="b4" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- Per-component build detail -->
+        <mxCell id="detail_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF8E1;strokeColor=#F57F17;dashed=1;dashPattern=5 5;" vertex="1" parent="1">
+          <mxGeometry x="70" y="535" width="960" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="detail_label" value="Per Component:" style="text;html=1;fontSize=10;fontStyle=2;align=left;verticalAlign=middle;fillColor=none;strokeColor=none;fontColor=#F57F17;" vertex="1" parent="1">
+          <mxGeometry x="78" y="538" width="100" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="d1" value="cmake -S &lt;src&gt;&#xa;-B build/&lt;plat&gt;/&lt;comp&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#F57F17;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="80" y="558" width="165" height="38" as="geometry"/>
+        </mxCell>
+        <mxCell id="d2" value="cmake --build&#xa;-j &lt;CPU_CORES&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#F57F17;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="270" y="558" width="140" height="38" as="geometry"/>
+        </mxCell>
+        <mxCell id="d3" value="cmake --install&#xa;[--strip]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#F57F17;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="435" y="558" width="130" height="38" as="geometry"/>
+        </mxCell>
+        <mxCell id="d4" value="→ prebuilt/&lt;platform&gt;/&#xa;bin/ lib/ include/" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#F57F17;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="590" y="558" width="170" height="38" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="da1" style="exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeColor=#F57F17;strokeWidth=1;" edge="1" source="d1" target="d2" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="da2" style="exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeColor=#F57F17;strokeWidth=1;" edge="1" source="d2" target="d3" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="da3" style="exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeColor=#F57F17;strokeWidth=1;" edge="1" source="d3" target="d4" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- Phase 4: Deploy -->
+        <mxCell id="phase4_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#6A1B9A;dashed=1;arcSize=6;" vertex="1" parent="1">
+          <mxGeometry x="40" y="650" width="1120" height="130" as="geometry"/>
+        </mxCell>
+        <mxCell id="phase4_label" value="Phase 4: Deploy &amp; Package" style="text;html=1;fontSize=13;fontStyle=1;align=left;verticalAlign=middle;fillColor=none;strokeColor=none;fontColor=#6A1B9A;" vertex="1" parent="1">
+          <mxGeometry x="55" y="652" width="250" height="25" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="p1" value="make deploy&#xa;or&#xa;build deploy" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1BEE7;strokeColor=#6A1B9A;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="70" y="690" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="p2" value="Copy platform&#xa;deploy files" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1BEE7;strokeColor=#6A1B9A;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="230" y="695" width="130" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="p3" value="Generate&#xa;setup scripts" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1BEE7;strokeColor=#6A1B9A;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="400" y="695" width="130" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="p4" value="Stage packup/&#xa;cmake/ host/ target/" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1BEE7;strokeColor=#6A1B9A;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="570" y="695" width="150" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="p5" value="vkit-&lt;plat&gt;&#xa;-runtime.tgz" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#CE93D8;strokeColor=#6A1B9A;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="760" y="690" width="140" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="p6" value="vkit-&lt;plat&gt;&#xa;-sdk.tgz" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#CE93D8;strokeColor=#6A1B9A;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="940" y="690" width="140" height="55" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="pa1" style="exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeColor=#6A1B9A;strokeWidth=2;" edge="1" source="p1" target="p2" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="pa2" style="exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeColor=#6A1B9A;strokeWidth=2;" edge="1" source="p2" target="p3" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="pa3" style="exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeColor=#6A1B9A;strokeWidth=2;" edge="1" source="p3" target="p4" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="pa4" style="exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeColor=#6A1B9A;strokeWidth=2;" edge="1" source="p4" target="p5" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="pa5" style="exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeColor=#6A1B9A;strokeWidth=2;" edge="1" source="p5" target="p6" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- Phase arrows -->
+        <mxCell id="ph12" style="exitX=0.5;exitY=1;entryX=0.5;entryY=0;strokeColor=#333333;strokeWidth=2;dashed=1;" edge="1" source="phase1_bg" target="phase2_bg" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ph23" style="exitX=0.5;exitY=1;entryX=0.5;entryY=0;strokeColor=#333333;strokeWidth=2;dashed=1;" edge="1" source="phase2_bg" target="phase3_bg" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ph34" style="exitX=0.5;exitY=1;entryX=0.5;entryY=0;strokeColor=#333333;strokeWidth=2;dashed=1;" edge="1" source="phase3_bg" target="phase4_bg" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

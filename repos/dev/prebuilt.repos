@@ -1,0 +1,9 @@
+repositories:
+  prebuilt:
+    type: git
+    url: https://github.com/thun-res/vprebuilt.git
+    version: master
+  prebuilt-ext:
+    type: git
+    url: https://github.com/thun-res/vprebuilt-ext.git
+    version: master

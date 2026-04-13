@@ -1,0 +1,5 @@
+repositories:
+  middleware/vlink-msgs:
+    type: git
+    url: https://github.com/thun-res/vlink-msgs.git
+    version: master

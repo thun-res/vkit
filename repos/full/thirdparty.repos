@@ -1,0 +1,10 @@
+repositories:
+  thirdparty:
+    type: git
+    url: https://github.com/thun-res/vthirdparty.git
+    version: master
+  thirdparty-ext:
+    type: git
+    url: https://github.com/thun-res/vthirdparty-ext.git
+    version: master
+

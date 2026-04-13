@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-04-13" agent="vkit-doc" type="device">
+  <diagram id="arch-overview" name="Architecture Overview">
+    <mxGraphModel dx="1422" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="title1" value="VKit Architecture Overview" style="text;html=1;fontSize=24;fontStyle=1;align=center;verticalAlign=middle;whiteSpace=wrap;fillColor=none;strokeColor=none;fontColor=#1a1a2e;" vertex="1" parent="1">
+          <mxGeometry x="500" y="20" width="600" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- User Layer -->
+        <mxCell id="user_layer" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;dashed=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="60" y="80" width="1480" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="user_label" value="User Interface Layer" style="text;html=1;fontSize=14;fontStyle=1;align=left;verticalAlign=middle;fillColor=none;strokeColor=none;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="80" y="82" width="200" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="cmd_mm" value="mm&#xa;(Single Build)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="100" y="115" width="110" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="cmd_mmm" value="mmm&#xa;(Config Build)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="230" y="115" width="110" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="cmd_mm_all" value="mm_all&#xa;(Full Build)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="360" y="115" width="110" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="cmd_build" value="build&#xa;(Layer Build)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="490" y="115" width="110" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="cmd_import" value="make import&#xa;(Repo Import)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="620" y="115" width="110" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="cmd_deploy" value="build deploy&#xa;(Package)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="750" y="115" width="110" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="cmd_clean" value="make clean / rclean&#xa;(Cleanup)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="880" y="115" width="110" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="cmd_mmc" value="mmc&#xa;(Clang-Tidy)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1010" y="115" width="110" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="cmd_rdb" value="rdb&#xa;(Debug)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1140" y="115" width="110" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="cmd_pull" value="make pull&#xa;(VCS Sync)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1270" y="115" width="110" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- Core Engine -->
+        <mxCell id="core_layer" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="60" y="210" width="1480" height="130" as="geometry"/>
+        </mxCell>
+        <mxCell id="core_label" value="Core Engine" style="text;html=1;fontSize=14;fontStyle=1;align=left;verticalAlign=middle;fillColor=none;strokeColor=none;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="80" y="212" width="200" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="setup_sh" value="vkit-setup.sh&#xa;vkit-setup.bat&#xa;(Environment &amp; Commands)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="100" y="248" width="200" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="config_sys" value="Configuration System&#xa;config/&lt;platform&gt;/*.cfg&#xa;(thirdparty / middleware /&#xa;vendor / app)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="330" y="248" width="220" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="toolchain" value="CMake Toolchain&#xa;cmake/toolchain.cmake&#xa;(Cross-compilation)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="580" y="248" width="200" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="repo_mgr" value="Repository Manager&#xa;repos/&lt;variant&gt;/&#xa;ripvcs / vcs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="810" y="248" width="200" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="deploy_sys" value="Deploy System&#xa;deploy/&#xa;(Package &amp; Distribute)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="248" width="200" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="host_tools" value="Host Tools&#xa;cmake, ninja&#xa;protoc, flatc..." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1270" y="248" width="160" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- Build Layers -->
+        <mxCell id="build_layer" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="60" y="370" width="1480" height="130" as="geometry"/>
+        </mxCell>
+        <mxCell id="build_label" value="Build Layers (Build Order →)" style="text;html=1;fontSize=14;fontStyle=1;align=left;verticalAlign=middle;fillColor=none;strokeColor=none;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="80" y="372" width="250" height="30" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="layer_3rd" value="① thirdparty/&#xa;&#xa;User-defined external&#xa;dependencies" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b9e0a5;strokeColor=#82b366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="100" y="408" width="280" height="75" as="geometry"/>
+        </mxCell>
+        <mxCell id="layer_ven" value="② vendor/&#xa;&#xa;OEM / vendor&#xa;components" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b9e0a5;strokeColor=#82b366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="420" y="408" width="220" height="75" as="geometry"/>
+        </mxCell>
+        <mxCell id="layer_mid" value="③ middleware/&#xa;&#xa;Built-in: vlink,&#xa;vlink-msgs&#xa;+ custom middleware" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b9e0a5;strokeColor=#82b366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="680" y="408" width="280" height="75" as="geometry"/>
+        </mxCell>
+        <mxCell id="layer_app" value="④ app/&#xa;&#xa;User applications" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b9e0a5;strokeColor=#82b366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="408" width="220" height="75" as="geometry"/>
+        </mxCell>
+
+        <!-- Arrows between layers -->
+        <mxCell id="arrow1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#82b366;strokeWidth=2;" edge="1" source="layer_3rd" target="layer_ven" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="arrow2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#82b366;strokeWidth=2;" edge="1" source="layer_ven" target="layer_mid" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="arrow3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#82b366;strokeWidth=2;" edge="1" source="layer_mid" target="layer_app" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Output Layer -->
+        <mxCell id="output_layer" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="60" y="530" width="1480" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="output_label" value="Output Artifacts" style="text;html=1;fontSize=14;fontStyle=1;align=left;verticalAlign=middle;fillColor=none;strokeColor=none;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="80" y="532" width="200" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="out_build" value="build/&lt;platform&gt;/&#xa;CMake Build Cache" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d4c5e2;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="100" y="568" width="200" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="out_prebuilt" value="prebuilt/&lt;platform&gt;/&#xa;bin/ lib/ include/ etc/" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d4c5e2;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="340" y="568" width="220" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="out_prebuilt_ext" value="prebuilt-ext/&lt;platform&gt;/&#xa;External Pre-builts" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d4c5e2;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="600" y="568" width="220" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="out_runtime" value="packup/&#xa;vkit-&lt;platform&gt;-runtime.tgz&#xa;(Runtime Package)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d4c5e2;strokeColor=#9673a6;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="860" y="568" width="250" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="out_sdk" value="packup/&#xa;vkit-&lt;platform&gt;-sdk.tgz&#xa;(SDK Package)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d4c5e2;strokeColor=#9673a6;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1150" y="568" width="250" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Platform Layer -->
+        <mxCell id="platform_layer" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="60" y="680" width="1480" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="platform_label" value="Supported Platforms" style="text;html=1;fontSize=14;fontStyle=1;align=left;verticalAlign=middle;fillColor=none;strokeColor=none;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="80" y="682" width="200" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="plat_linux" value="Linux&#xa;x86_64 / aarch64" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="100" y="718" width="150" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="plat_darwin" value="macOS&#xa;x86_64 / arm64" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="280" y="718" width="150" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="plat_android" value="Android&#xa;x86_64 / aarch64" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="460" y="718" width="150" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="plat_qnx" value="QNX&#xa;x86_64 / aarch64" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="640" y="718" width="150" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="plat_win" value="Windows&#xa;x86_64" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="820" y="718" width="150" height="45" as="geometry"/>
+        </mxCell>
+
+        <!-- Arrows from core to build -->
+        <mxCell id="c2b1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;strokeColor=#999999;strokeWidth=1;dashed=1;" edge="1" source="core_layer" target="build_layer" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <!-- Arrows from build to output -->
+        <mxCell id="b2o1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;strokeColor=#999999;strokeWidth=1;dashed=1;" edge="1" source="build_layer" target="output_layer" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Remote Repos -->
+        <mxCell id="remote" value="Remote Git Repositories&#xa;(github.com/thun-res/)" style="shape=cloud;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1290" y="380" width="230" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="remote_arrow" style="edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#9673a6;strokeWidth=1;dashed=1;" edge="1" source="repo_mgr" target="remote" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
