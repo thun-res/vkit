@@ -1,0 +1,95 @@
+<mxfile host="app.diagrams.net" agent="claude" version="29.5.2">
+  <diagram id="arch" name="Architecture">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1280" pageHeight="640" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="VKit  ·  Cross-Platform Build &amp; Release System" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=22;fontStyle=1;fontColor=#1F4E79;" vertex="1" parent="1">
+          <mxGeometry x="280" y="20" width="720" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="grp_src" value="(1)  Source Repositories  ·  Multi-Repo Manifests" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1F5FE;strokeColor=#0288D1;fontSize=14;fontStyle=1;fontColor=#01579B;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="40" y="100" width="280" height="430" as="geometry" />
+        </mxCell>
+        <mxCell id="src_setup" value="vsetup&#10;(setup/)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#0288D1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="60" y="150" width="240" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="src_3p" value="vthirdparty&#10;(thirdparty/)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#0288D1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="60" y="200" width="240" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="src_vmsgs" value="vmsgs&#10;(middleware/vmsgs)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#0288D1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="60" y="250" width="240" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="src_vlink" value="vlink  (full set only)&#10;(middleware/vlink)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#D32F2F;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="300" width="240" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="src_pre" value="vprebuilt  (cached pre-builds)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#0288D1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="60" y="350" width="240" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="src_pri" value="vprebuilt-private  (link-only deps)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#0288D1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="60" y="400" width="240" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="src_man" value="repos/{dev,full}/*.repos&#10;(vcstool-compatible manifests)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#FB8C00;fontSize=11;fontStyle=2;" vertex="1" parent="1">
+          <mxGeometry x="60" y="465" width="240" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="grp_core" value="(2)  VKit Core" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;fontSize=14;fontStyle=1;fontColor=#1B5E20;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="400" y="100" width="500" height="430" as="geometry" />
+        </mxCell>
+        <mxCell id="core_setup" value="vkit-setup.sh / vkit-setup.bat&#10;both: mm/mmm/mm_*/llcfg&#10;POSIX only: build/rdb/mmc" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#388E3C;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="420" y="150" width="460" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="core_cmake" value="cmake/&#10;toolchain.cmake → dispatch by VKIT_PLATFORM&#10;Linux · QNX · Android · macOS · Windows" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#388E3C;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="420" y="220" width="220" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="core_config" value="config/&lt;platform&gt;[-&lt;device&gt;]/&#10;thirdparty.cfg · vendor.cfg&#10;middleware.cfg · app.cfg&#10;(path + CMake flags per line)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#388E3C;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="660" y="220" width="220" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="core_deploy" value="deploy/&#10;do_copy → do_fileset → do_packup&#10;(overlay · QNX fileset · tarball)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#388E3C;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="420" y="320" width="220" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="core_tools" value="tools/&lt;host&gt;/bin/&#10;cmake · ripvcs · protoc&#10;flatc · fastddsgen · host-dependent tools" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#388E3C;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="660" y="320" width="220" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="core_make" value="Makefile&#10;make = install + deploy" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFDE7;strokeColor=#F9A825;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="420" y="425" width="460" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="grp_out" value="(3)  Target Artifacts" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#E65100;fontSize=14;fontStyle=1;fontColor=#BF360C;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="980" y="100" width="270" height="430" as="geometry" />
+        </mxCell>
+        <mxCell id="out_pre" value="prebuilt/&lt;DEVICE_PLATFORM&gt;/&#10;Shipping artifacts (tools / shared libs)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#E65100;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="150" width="230" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="out_pri" value="prebuilt-private/&lt;DEVICE_PLATFORM&gt;/&#10;Link-only, not packaged by default" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#E65100;fontSize=12;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="225" width="230" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="out_rt" value="vkit-&lt;DEVICE_PLATFORM&gt;-runtime.tgz&#10;(strips headers / cmake / static libs)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#E65100;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="305" width="230" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="out_sdk" value="vkit-&lt;DEVICE_PLATFORM&gt;-sdk.tgz&#10;(cmake + host tools + unstripped target)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#E65100;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="380" width="230" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="out_setup" value="vkit-runtime-setup.sh&#10;vkit-sdk-setup.sh&#10;(auto-inject VLINK_*)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFDE7;strokeColor=#F9A825;fontSize=11;fontStyle=2;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="455" width="230" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#0288D1;" edge="1" parent="1" source="grp_src" target="grp_core">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e1_lbl" value="make import_dev / import_full" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;fontStyle=2;fontColor=#01579B;" vertex="1" connectable="0" parent="e1">
+          <mxGeometry x="-0.05" y="-1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e2" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#E65100;" edge="1" parent="1" source="grp_core" target="grp_out">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2_lbl" value="make / make deploy_sdk" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;fontStyle=2;fontColor=#BF360C;" vertex="1" connectable="0" parent="e2">
+          <mxGeometry x="-0.05" y="-1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="footer" value="Build order  ·  thirdparty  →  vendor  →  middleware  →  app" style="text;html=1;align=center;verticalAlign=middle;fontSize=13;fontStyle=2;fontColor=#555555;" vertex="1" parent="1">
+          <mxGeometry x="280" y="555" width="720" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

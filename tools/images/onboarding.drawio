@@ -1,0 +1,55 @@
+<mxfile host="app.diagrams.net" agent="claude" version="29.5.2">
+  <diagram id="onboard" name="Onboarding">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1280" pageHeight="660" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="Adding a New Component  ·  Two Steps" style="text;html=1;align=center;verticalAlign=middle;fontSize=18;fontStyle=1;fontColor=#1F4E79;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="1200" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="step1" value="Step 1  ·  Register the Repo" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1F5FE;strokeColor=#0288D1;fontSize=15;fontStyle=1;fontColor=#01579B;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="40" y="100" width="600" height="430" as="geometry" />
+        </mxCell>
+        <mxCell id="s1_pick" value="Pick a layer ∈ {setup, prebuilt, thirdparty, vendor, middleware, app}&#10;The layer determines the component's on-disk location" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#0288D1;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="60" y="150" width="560" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="s1_edit" value="Edit  repos/&lt;dev|full&gt;/&lt;layer&gt;.repos" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#0288D1;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="230" width="560" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="s1_yaml" value="repositories:&#10;  middleware/my-component:&#10;    type: git&#10;    url: &lt;git-url&gt;&#10;    version: &lt;branch-or-tag&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#263238;strokeColor=#37474F;fontSize=11;fontFamily=Courier New;fontColor=#FFFFFF;align=left;" vertex="1" parent="1">
+          <mxGeometry x="60" y="280" width="560" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="s1_run" value="$  make import_dev   /   make import_full" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFDE7;strokeColor=#F9A825;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="395" width="560" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="s1_path" value="After pull: vkit/middleware/my-component/" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;fontSize=11;fontStyle=2;" vertex="1" parent="1">
+          <mxGeometry x="60" y="450" width="560" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="step2" value="Step 2  ·  Schedule the Build" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;fontSize=15;fontStyle=1;fontColor=#1B5E20;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="660" y="100" width="600" height="430" as="geometry" />
+        </mxCell>
+        <mxCell id="s2_pick" value="For each target platform, edit&#10;config/&lt;platform&gt;-&lt;arch&gt;[-&lt;device&gt;]/&lt;layer&gt;.cfg" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#388E3C;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="680" y="150" width="560" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="s2_syntax" value="path ; CMake flags ( \ continues line )" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#388E3C;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="680" y="230" width="560" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="s2_cfg" value="middleware/my-component;            \&#10;    -DBUILD_SHARED_LIBS=ON          \&#10;    -DENABLE_INSTALL_PRIVATE=OFF    \&#10;    -DMY_FEATURE=ON" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#263238;strokeColor=#37474F;fontSize=11;fontFamily=Courier New;fontColor=#FFFFFF;align=left;" vertex="1" parent="1">
+          <mxGeometry x="680" y="280" width="560" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="s2_run" value="$  source vkit-setup.sh&#10;$  cd middleware/my-component &amp;&amp; mmm" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFDE7;strokeColor=#F9A825;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="680" y="395" width="560" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="s2_alt" value="Or batch-build:  mm_middleware  /  make install" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;fontSize=11;fontStyle=2;" vertex="1" parent="1">
+          <mxGeometry x="680" y="450" width="560" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="rules" value="Conventions:  shipping artifacts stay in prebuilt/ — do not set ENABLE_INSTALL_PRIVATE&#10;              link-only deps set -DENABLE_INSTALL_PRIVATE=ON, land in prebuilt-private/, not packaged by default&#10;              POSIX: CMakeLists.txt / build.sh / Makefile; Windows: build.cmd / build.bat also supported" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#E65100;fontSize=11;fontStyle=2;align=left;" vertex="1" parent="1">
+          <mxGeometry x="40" y="555" width="1220" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="ar" style="endArrow=classic;html=1;rounded=0;strokeWidth=3;strokeColor=#388E3C;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="step1" target="step2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
