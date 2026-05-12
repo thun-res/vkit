@@ -83,12 +83,11 @@ Adjacent tools each pick a different focus. VKit deliberately stays **close to C
 sudo apt-get -y install \
     git git-lfs \
     autoconf automake tclsh \
-    build-essential ninja-build ccache rsync \
-    python3 \
-    openjdk-17-jdk \
-    doxygen graphviz \
-    ccache
-sudo pip install vcstool
+    build-essential ninja-build \
+    ccache rsync \
+    python3 openjdk-17-jdk \
+    doxygen graphviz
+sudo pip install vcs2l
 ```
 
 | Tool | Source | Notes |
