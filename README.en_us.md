@@ -502,7 +502,7 @@ In real projects, vendors often ship a GCC, a sysroot, and several specialty SDK
 
 ```bash
 # ~/vkit-toolchains/myecu/myecu_setup.sh
-SHELL_DIR=$(cd $(dirname ${BASH_SOURCE:-$0}) && pwd)
+SHELL_DIR=$(cd $(dirname ${BASH_SOURCE[0]:-$0}) && pwd)
 
 # === 1. Bind platform + device → derives VKIT_DEVICE_PLATFORM=linux-aarch64-myecu ===
 export VKIT_PLATFORM="linux-aarch64"

@@ -4,11 +4,7 @@
 [ -n "$ZSH_VERSION" ] && setopt extendedglob
 
 if [ -z "$VKIT_ROOT_DIR" ]; then
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        export VKIT_ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
-    else
-        export VKIT_ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE:-$0}")" && pwd)"
-    fi
+    export VKIT_ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE:-$0}")" && pwd)"
 fi
 export VKIT_HOST_OS="$(uname -o 2>/dev/null | tr '[:upper:]' '[:lower:]')"
 export VKIT_HOST_TYPE="$(uname -s | tr '[:upper:]' '[:lower:]')"

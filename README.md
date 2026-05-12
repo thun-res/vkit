@@ -502,7 +502,7 @@ make
 
 ```bash
 # ~/vkit-toolchains/myecu/myecu_setup.sh
-SHELL_DIR=$(cd $(dirname ${BASH_SOURCE:-$0}) && pwd)
+SHELL_DIR=$(cd $(dirname ${BASH_SOURCE[0]:-$0}) && pwd)
 
 # === 1. 绑定平台 + 设备 → 派生 VKIT_DEVICE_PLATFORM=linux-aarch64-myecu ===
 export VKIT_PLATFORM="linux-aarch64"

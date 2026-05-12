@@ -1,10 +1,6 @@
 #!/usr/bin/env bash
 
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    SHELL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
-else
-    SHELL_DIR="$(cd "$(dirname "${BASH_SOURCE:-$0}")" && pwd)"
-fi
+SHELL_DIR="$(cd "$(dirname "${BASH_SOURCE:-$0}")" && pwd)"
 
 echo -e "\nDeploy...\n"
 
