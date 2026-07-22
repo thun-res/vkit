@@ -3,7 +3,7 @@
 function do_fileset() {
     local BUILD_FILE="$VKIT_PREBUILT_DIR/vkit.build"
     local FILESET_IGNORE_FILE="$SHELL_DIR/vkit.ignore"
-    local FILESET_ROOT="../vkit-ware/prebuilt/$VKIT_PLATFORM"
+    local FILESET_ROOT="../vkit/prebuilt/$VKIT_PLATFORM"
     local FILESET_LIB_NAME=lib64
 
     if [ "$VKIT_PLATFORM" != "qnx-aarch64" ] && [ "$VKIT_PLATFORM" != "qnx-x86_64" ]; then
