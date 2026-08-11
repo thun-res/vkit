@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 function do_fileset() {
-    local BUILD_FILE="$VKIT_PREBUILT_DIR/vkit.build"
+    local BUILD_FILE="$VKIT_PREBUILT_DIR/qnx-vkit.build"
     local FILESET_IGNORE_FILE="$SHELL_DIR/vkit.ignore"
     local FILESET_ROOT="../vkit/prebuilt/$VKIT_PLATFORM"
     local FILESET_LIB_NAME=lib64
