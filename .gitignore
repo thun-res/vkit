@@ -6,10 +6,11 @@ gastest.o
 .marscode
 .codex
 .claude
+__pycache__
 
+/build*
 /setup
 /rust
-/build
 /prebuilt
 /prebuilt-private
 /packup

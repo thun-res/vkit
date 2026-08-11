@@ -129,6 +129,12 @@ export VKIT_PLATFORM=\"$VKIT_PLATFORM\"\n\
 export VKIT_DEVICE=\"$VKIT_DEVICE\"\n\
 if [ -n \"\$BASH_VERSION\" ] || [ -n \"\$ZSH_VERSION\" ];then\n\
 \texport VKIT_ROOT_DIR=\$(cd \$(dirname \${BASH_SOURCE:-\$0}) && pwd)\n\
+elif [ -n \"\$KSH_VERSION\" ] && command -v pidin >/dev/null 2>&1;then\n\
+\texport VKIT_ROOT_DIR=\$(pidin -p \"\$\$\" fds | awk 'match(\$0, /\\/.*\\/vkit-runtime-setup[.]sh\$/) { root = substr(\$0, RSTART); sub(/\\/vkit-runtime-setup[.]sh\$/, \"\", root) } END { print root }')\n\
+\tif [ -z \"\$VKIT_ROOT_DIR\" ];then\n\
+\t\techo \"Error: Cannot resolve the sourced vkit-runtime-setup.sh path.\"\n\
+\t\treturn 1\n\
+\tfi\n\
 else\n\
 \texport VKIT_ROOT_DIR=\$(pwd)\n\
 fi\n\
