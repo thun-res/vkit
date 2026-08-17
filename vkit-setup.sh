@@ -2,6 +2,7 @@
 
 [ -n "$BASH_VERSION" ] && shopt -s extglob
 [ -n "$ZSH_VERSION" ] && setopt extendedglob
+[ -n "$ZSH_VERSION" ] && zmodload zsh/datetime zsh/system 2>/dev/null
 
 if [ -z "$VKIT_ROOT_DIR" ]; then
     export VKIT_ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE:-$0}")" && pwd)"
@@ -133,6 +134,238 @@ unset __cache_mm_project
 unset __cache_mm_dir
 unset __cache_mmm_cfg
 
+function _mm_time_now() {
+    if [ -n "$EPOCHREALTIME" ]; then
+        echo "${EPOCHREALTIME/,/.}"
+    else
+        date +%s
+    fi
+}
+
+function _mm_time_elapsed() {
+    awk -v s="$1" -v e="$(_mm_time_now)" 'BEGIN {
+        d = e - s
+        if (d >= 3600)      printf "%dh %dmin %ds", int(d/3600), int(d%3600/60), int(d%60)
+        else if (d >= 60)   printf "%dmin %.1fs", int(d/60), d - int(d/60)*60
+        else                printf "%.1fs", d
+    }'
+}
+
+function _mm_kill_tree() {
+    local _p
+    for _p in $(pgrep -P "$1" 2>/dev/null); do
+        _mm_kill_tree "$_p"
+    done
+    kill -TERM "$1" 2>/dev/null
+}
+
+function _mm_key_esc() {
+    local _k=""
+    local _k2=""
+    if [ -n "$ZSH_VERSION" ]; then
+        read -r -s -t 0 -k 1 _k < /dev/tty 2>/dev/null || return 1
+    else
+        read -t 0 < /dev/tty 2>/dev/null || return 1
+        IFS= read -r -s -n 1 -t 0.05 _k < /dev/tty 2>/dev/null || return 1
+    fi
+    [ "$_k" = $'\033' ] || return 1
+    if [ -n "$ZSH_VERSION" ]; then
+        read -r -s -t 0.05 -k 1 _k2 < /dev/tty 2>/dev/null
+    else
+        IFS= read -r -s -n 1 -t 0.05 _k2 < /dev/tty 2>/dev/null
+    fi
+    [ -n "$_k2" ] && return 1
+    return 0
+}
+
+function _mm_status_end() {
+    trap - INT
+    if [ -n "$_mm_trap0" ]; then
+        if [ -n "$ZSH_VERSION" ]; then
+            functions[TRAPINT]="$_mm_trap0"
+        else
+            eval "$_mm_trap0"
+        fi
+    fi
+    if [ -n "$_mm_stty" ]; then
+        stty -icanon min 0 time 0 < /dev/tty 2>/dev/null
+        dd if=/dev/tty of=/dev/null bs=4096 count=1 2>/dev/null
+        stty "$_mm_stty" < /dev/tty 2>/dev/null
+        _mm_stty=""
+    fi
+    if [ "$_pinned" = "1" ]; then
+        [ "$_first" = "0" ] && printf '\n'
+        printf '\0337\033[%d;1H\033[2K\033[%d;1H\033[2K\0338\0337\033[r\0338' $((_rows - 1)) "$_rows"
+    else
+        printf '\r\033[2K'
+    fi
+    printf '\033[?25h'
+}
+
+function _mm_status_filter() {
+    local _pkg="$1"
+    local _t0="$2"
+    local _progress="$__mm_status_progress"
+    local _stage="${_mm_stage:-Building}"
+    local _line _rc _sz _f _s _d _dw _now _chunk _t1s _done _tenths _status
+    local _buf="" _ret=130 _tick=0 _esc=0 _first=1 _pinned=0 _t0t=0
+    local _mm_trap0=""
+    if [ -n "$ZSH_VERSION" ]; then
+        _mm_trap0="${functions[TRAPINT]-}"
+    else
+        _mm_trap0="$(trap -p INT)"
+    fi
+    local _rto=0.1
+    [ -n "$BASH_VERSION" ] && [ "${BASH_VERSINFO[0]}" -lt 4 ] && _rto=1
+    _sz="$(stty size < /dev/tty 2>/dev/null)"
+    local _rows="${_sz%% *}"
+    local _cols="${_sz##* }"
+    [ -z "$_cols" ] && _cols=80
+    case "$_t0" in
+        *[.,]*)
+            _f="${_t0#*[.,]}"
+            _t0t=$(( ${_t0%%[.,]*} * 10 + ${_f:0:1} ))
+            ;;
+    esac
+    case "${LC_ALL:-${LC_CTYPE:-$LANG}}" in
+        *[Uu][Tt][Ff]*)
+            _d="⠉⠇⠈⡇⢀⡇⣀⡆⣄⡄⣆⡀⣇⠀⡏⠀⠏⠁⠋⠃"
+            _dw=2
+            ;;
+        *)
+            _d='|/-\'
+            _dw=1
+            ;;
+    esac
+    local _mm_stty="$(stty -g < /dev/tty 2>/dev/null)"
+    [ -n "$_mm_stty" ] && stty -echo -icanon min 1 time 0 < /dev/tty 2>/dev/null
+    printf '\033[?25l'
+    if [ -n "$_rows" ] && [ "$_rows" -ge 8 ]; then
+        _pinned=1
+        printf '\n\n\0337\033[1;%dr\033[%d;1H\033[2K\0338\033[A\033[A' $((_rows - 2)) $((_rows - 1))
+    fi
+    trap '_esc=2; [ -n "$_mm_bpid" ] && _mm_kill_tree "$_mm_bpid"; _mm_status_end' INT
+    while :; do
+        [ $_esc -ne 0 ] && break
+        _done=0
+        if [ -n "$ZSH_VERSION" ]; then
+            _chunk=""
+            sysread -s 4096 -t $_rto _chunk
+            _rc=$?
+            if [ $_rc -eq 0 ]; then
+                _buf="$_buf$_chunk"
+            elif [ $_rc -ne 4 ]; then
+                break
+            fi
+        else
+            _line=
+            _t1s=0
+            [ -z "$EPOCHREALTIME" ] && _t1s=$(date +%s)
+            IFS= read -r -t $_rto _line
+            _rc=$?
+            if [ $_rc -eq 0 ]; then
+                _buf="$_buf$_line"$'\n'
+            elif [ $_rc -gt 128 ]; then
+                _buf="$_buf$_line"
+            elif [ "$_t1s" != "0" ] && [ $(( $(date +%s) - _t1s )) -ge 1 ]; then
+                :
+            else
+                break
+            fi
+        fi
+        while [ "${_buf#*$'\n'}" != "$_buf" ]; do
+            _line="${_buf%%$'\n'*}"
+            _buf="${_buf#*$'\n'}"
+            if [ "${_line#*__MM_RET__}" != "$_line" ]; then
+                _ret="${_line##*__MM_RET__}"
+                case "$_ret" in
+                    ''|*[!0-9]*) _ret=1 ;;
+                esac
+                _line="${_line%%__MM_RET__*}"
+                _done=1
+                [ -z "$_line" ] && break
+            fi
+            if [ $_pinned -eq 1 ]; then
+                if [ $_first -eq 1 ]; then
+                    _first=0
+                    printf '%s' "$_line"
+                else
+                    printf '\n%s' "$_line"
+                fi
+            else
+                printf '\r\033[2K%s\n' "$_line"
+            fi
+            [ $_done -eq 1 ] && break
+        done
+        [ $_done -eq 1 ] && break
+        if [ $_esc -eq 0 ] && [ -n "$_mm_bpid" ] && _mm_key_esc; then
+            _esc=1
+            if [ $_pinned -eq 1 ]; then
+                if [ $_first -eq 1 ]; then
+                    _first=0
+                    printf '\033[1;33mStopping build (ESC pressed) ...\033[0m'
+                else
+                    printf '\n\033[1;33mStopping build (ESC pressed) ...\033[0m'
+                fi
+            else
+                printf '\r\033[2K\033[1;33mStopping build (ESC pressed) ...\033[0m\n'
+            fi
+            _mm_kill_tree "$_mm_bpid"
+        fi
+        _tick=$((_tick + 1))
+        if [ $_pinned -eq 1 ] && [ $((_tick % 10)) -eq 0 ]; then
+            _sz="$(stty size < /dev/tty 2>/dev/null)"
+            if [ -n "$_sz" ] && [ "$_sz" != "$_rows $_cols" ] && [ "${_sz%% *}" -ge 8 ]; then
+                printf '\0337\033[r\0338'
+                _rows="${_sz%% *}"
+                _cols="${_sz##* }"
+                printf '\n\n\0337\033[1;%dr\033[%d;1H\033[2K\0338\033[A\033[A' $((_rows - 2)) $((_rows - 1))
+            fi
+        fi
+        if [ -n "$EPOCHREALTIME" ] && [ $_t0t -ne 0 ]; then
+            _now="$EPOCHREALTIME"
+            _f="${_now#*[.,]}"
+            _tenths=$(( ${_now%%[.,]*} * 10 + ${_f:0:1} - _t0t ))
+        else
+            _tenths=$(( ($(date +%s) - ${_t0%%[.,]*}) * 10 ))
+        fi
+        _s=$((_tenths / 10))
+        if [ $_s -ge 3600 ]; then
+            _status="[$((_s / 3600))h $((_s % 3600 / 60))min $((_s % 60))s]"
+        elif [ $_s -ge 60 ]; then
+            _status="[$((_s / 60))min $((_s % 60)).$((_tenths % 10))s]"
+        else
+            _status="[$_s.$((_tenths % 10))s]"
+        fi
+        [ -n "$_progress" ] && _status="$_status [$_progress]"
+        _status="${_d:$(( _tenths % (${#_d} / _dw) * _dw )):_dw} $_status $_stage [$_pkg]"
+        if [ $_pinned -eq 1 ]; then
+            printf '\0337\033[%d;1H\033[1;97;48;5;39m\033[2K %.*s\033[0m\0338' "$_rows" $((_cols - 2)) "$_status"
+        else
+            printf '\r\033[1;97;48;5;39m\033[2K%.*s\033[0m' $((_cols - 1)) "$_status"
+        fi
+    done
+    _mm_status_end
+    [ $_esc -ne 0 ] && _ret=130
+    return $_ret
+}
+
+function _mm_run() {
+    if [ -t 1 ] && [ "$VKIT_SBAR_DISABLE" != "1" ] && { [ -z "$ZSH_VERSION" ] || zmodload -e zsh/system 2>/dev/null; }; then
+        local _mm_fifo="${TMPDIR:-/tmp}/.vkit_mm_$$_$RANDOM"
+        local _mm_bpid=""
+        local _mm_rc=0
+        mkfifo "$_mm_fifo" 2>/dev/null || { "$@"; return $?; }
+        _mm_bpid=$( ( ( exec >/dev/null 2>&1; exec > "$_mm_fifo"; "$@" 2>&1; printf '__MM_RET__%s\n' "$?" ) & echo $! ) )
+        _mm_status_filter "$_project" "$_mm_t0" < "$_mm_fifo"
+        _mm_rc=$?
+        rm -f "$_mm_fifo"
+        return $_mm_rc
+    else
+        "$@"
+    fi
+}
+
 function mm() {
     if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
         echo -e "Usage:"
@@ -191,6 +424,9 @@ function mm() {
         fi
         return 0
     else
+        local _mm_ret=0
+        local _mm_stage="Building"
+        local _mm_t0="$(_mm_time_now)"
         echo -e "\n\033[1m\033[34m=== Build [$_project] ===\033[0m"
         if [ $_build_type -eq 0 ]; then
             local _has_target=0
@@ -202,18 +438,20 @@ function mm() {
                 fi
             done
             if [ $_has_target -eq 1 ]; then
-                cmake --build "$VKIT_BUILD_DIR/$_project" -j"$VKIT_BUILD_CPU_CORE" "$@"
+                _mm_run cmake --build "$VKIT_BUILD_DIR/$_project" -j"$VKIT_BUILD_CPU_CORE" "$@"
             else
                 if [ ! -f "$VKIT_BUILD_DIR/$_project/CMakeCache.txt" ]; then
-                    cmake -S "$_project_dir" -B "$VKIT_BUILD_DIR/$_project" -DCMAKE_TOOLCHAIN_FILE="$VKIT_ROOT_DIR/cmake/toolchain.cmake" "$@"
+                    _mm_stage="Configuring"
+                    _mm_run cmake -S "$_project_dir" -B "$VKIT_BUILD_DIR/$_project" -DCMAKE_TOOLCHAIN_FILE="$VKIT_ROOT_DIR/cmake/toolchain.cmake" "$@"
                     if [ $? -ne 0 ]; then
-                        echo -e "\n\033[1m\033[31m=== Build [$_project] failed ===\033[0m"
+                        echo -e "\n\033[1m\033[31m=== Build [$_project] failed [$(_mm_time_elapsed "$_mm_t0")] ===\033[0m"
                         return 1
                     fi
                 fi
-                cmake --build "$VKIT_BUILD_DIR/$_project" -j"$VKIT_BUILD_CPU_CORE"
+                _mm_stage="Building"
+                _mm_run cmake --build "$VKIT_BUILD_DIR/$_project" -j"$VKIT_BUILD_CPU_CORE"
                 if [ $? -ne 0 ]; then
-                    echo -e "\n\033[1m\033[31m=== Build [$_project] failed ===\033[0m"
+                    echo -e "\n\033[1m\033[31m=== Build [$_project] failed [$(_mm_time_elapsed "$_mm_t0")] ===\033[0m"
                     return 1
                 fi
                 if [ "$VKIT_STRIP" = "1" ]; then
@@ -224,14 +462,16 @@ function mm() {
             fi
         elif [ $_build_type -eq 1 ]; then
             mkdir -p "$VKIT_BUILD_DIR/$_project" && cp -rf "$_project_dir"/* "$VKIT_BUILD_DIR/$_project/"
-            "$VKIT_BUILD_DIR/$_project/build.sh" "$@"
+            _mm_run "$VKIT_BUILD_DIR/$_project/build.sh" "$@"
         elif [ $_build_type -eq 2 ]; then
-            make -C "$_project_dir" "$@" -j"$VKIT_BUILD_CPU_CORE"
+            _mm_run make -C "$_project_dir" "$@" -j"$VKIT_BUILD_CPU_CORE"
         fi
-        if [ $? -ne 0 ]; then
-            echo -e "\n\033[1m\033[31m=== Build [$_project] failed ===\033[0m"
+        _mm_ret=$?
+        if [ $_mm_ret -ne 0 ]; then
+            echo -e "\n\033[1m\033[31m=== Build [$_project] failed [$(_mm_time_elapsed "$_mm_t0")] ===\033[0m"
             return 1
         fi
+        echo -e "\033[1m\033[32m=== Finished [$_project] [$(_mm_time_elapsed "$_mm_t0")] ===\033[0m"
         echo -e ""
         return 0
     fi
@@ -250,11 +490,16 @@ function _mm_for_cfg() {
         ([ -z "$_line" ] || [[ "$_line" == \#* ]] || [[ "$_line" == \;* ]] || [[ "$_line" == //* ]]) && continue
         lines+=("$_line")
     done < "$_path"
+    local _total=${#lines[@]}
+    local _idx=0
+    local _t0="$(_mm_time_now)"
     for _line in "${lines[@]}"; do
+        _idx=$((_idx + 1))
         local _project=$(echo "$_line" | cut -d ";" -f 1)
         local _cfg_arg=$(echo "$_line" | cut -d ";" -f 2)
         local __cache_mm_project="$_project"
         local __cache_mm_dir="$VKIT_ROOT_DIR/$_project"
+        local __mm_status_progress="$_idx/$_total"
         [ -z "$_project" ] && echo -e "Warning: Split line [$_line] failed!" && continue
         [ ! -d "$__cache_mm_dir" ] && echo -e "\033[1m\033[33m=== Note: Skip [$_project] ===\033[0m" && continue
         if [ "$_arg" = "clean" ]; then
@@ -266,6 +511,13 @@ function _mm_for_cfg() {
         fi
         [ $? -ne 0 ] && _reval=1 && break
     done
+    if [ "$_arg" != "clean" ]; then
+        if [ $_reval -eq 0 ]; then
+            echo -e "\033[1m\033[32m=== Summary: $_total projects finished [$(_mm_time_elapsed "$_t0")] ===\033[0m\n"
+        else
+            echo -e "\033[1;97;41mSummary: stopped at [$_idx/$_total] [$(_mm_time_elapsed "$_t0")]\033[0m\n"
+        fi
+    fi
     return $_reval
 }
 
