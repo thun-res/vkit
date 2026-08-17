@@ -195,7 +195,7 @@ function _mm_status_end() {
     fi
     if [ "$_pinned" = "1" ]; then
         [ "$_first" = "0" ] && printf '\n'
-        printf '\0337\033[%d;1H\033[2K\033[%d;1H\033[2K\0338\0337\033[r\0338' $((_rows - 1)) "$_rows"
+        printf '\0337\033[%d;1H\033[2K\0338\0337\033[r\0338' "$_rows"
     else
         printf '\r\033[2K'
     fi
@@ -240,9 +240,9 @@ function _mm_status_filter() {
     local _mm_stty="$(stty -g < /dev/tty 2>/dev/null)"
     [ -n "$_mm_stty" ] && stty -echo -icanon min 1 time 0 < /dev/tty 2>/dev/null
     printf '\033[?25l'
-    if [ -n "$_rows" ] && [ "$_rows" -ge 8 ]; then
+    if [ -n "$_rows" ] && [ "$_rows" -ge 4 ]; then
         _pinned=1
-        printf '\n\n\0337\033[1;%dr\033[%d;1H\033[2K\0338\033[A\033[A' $((_rows - 2)) $((_rows - 1))
+        printf '\n\0337\033[1;%dr\0338\033[A' $((_rows - 1))
     fi
     trap '_esc=2; [ -n "$_mm_bpid" ] && _mm_kill_tree "$_mm_bpid"; _mm_status_end' INT
     while :; do
@@ -315,11 +315,11 @@ function _mm_status_filter() {
         _tick=$((_tick + 1))
         if [ $_pinned -eq 1 ] && [ $((_tick % 10)) -eq 0 ]; then
             _sz="$(stty size < /dev/tty 2>/dev/null)"
-            if [ -n "$_sz" ] && [ "$_sz" != "$_rows $_cols" ] && [ "${_sz%% *}" -ge 8 ]; then
+            if [ -n "$_sz" ] && [ "$_sz" != "$_rows $_cols" ] && [ "${_sz%% *}" -ge 4 ]; then
                 printf '\0337\033[r\0338'
                 _rows="${_sz%% *}"
                 _cols="${_sz##* }"
-                printf '\n\n\0337\033[1;%dr\033[%d;1H\033[2K\0338\033[A\033[A' $((_rows - 2)) $((_rows - 1))
+                printf '\n\0337\033[1;%dr\0338\033[A' $((_rows - 1))
             fi
         fi
         if [ -n "$EPOCHREALTIME" ] && [ $_t0t -ne 0 ]; then
@@ -340,7 +340,7 @@ function _mm_status_filter() {
         [ -n "$_progress" ] && _status="$_status [$_progress]"
         _status="${_d:$(( _tenths % (${#_d} / _dw) * _dw )):_dw} $_status $_stage [$_pkg]"
         if [ $_pinned -eq 1 ]; then
-            printf '\0337\033[%d;1H\033[1;97;48;5;39m\033[2K %.*s\033[0m\0338' "$_rows" $((_cols - 2)) "$_status"
+            printf '\0337\033[%d;1H\033[1;97;48;5;39m %.*s\033[K\033[0m\0338' "$_rows" $((_cols - 2)) "$_status"
         else
             printf '\r\033[1;97;48;5;39m\033[2K%.*s\033[0m' $((_cols - 1)) "$_status"
         fi
@@ -511,7 +511,7 @@ function _mm_for_cfg() {
         fi
         [ $? -ne 0 ] && _reval=1 && break
     done
-    if [ "$_arg" != "clean" ]; then
+    if [ "$_arg" != "clean" ] && [ $_total -gt 0 ]; then
         if [ $_reval -eq 0 ]; then
             echo -e "\033[1m\033[32m=== Summary: $_total projects finished [$(_mm_time_elapsed "$_t0")] ===\033[0m\n"
         else
