@@ -29,7 +29,7 @@ if [ "$0" != "$BASH_SOURCE" ] && [ -n "$1" ]; then
     elif [ -f "/opt/$1/$1_setup.sh" ]; then
         . "/opt/$1/$1_setup.sh"
     else
-        echo -e "\033[1m\033[31mError: Can not find $1_setup.sh!\033[0m"
+        echo -e "\033[1;31m$_mm_ico_fail Error: Can not find $1_setup.sh!\033[0m"
         return 1
     fi
 fi
@@ -69,7 +69,7 @@ else
 fi
 
 if [ -z "$VKIT_PLATFORM_CONFIG_DIR" ]; then
-    echo -e "\033[1m\033[31mError: Can not find platform config!\033[0m"
+    echo -e "\033[1;31m$_mm_ico_fail Error: Can not find platform config!\033[0m"
     [ "$0" != "$BASH_SOURCE" ] && return 1
     exit 1
 fi
@@ -134,6 +134,15 @@ unset __cache_mm_project
 unset __cache_mm_dir
 unset __cache_mmm_cfg
 
+case "${LC_ALL:-${LC_CTYPE:-$LANG}}" in
+    *[Uu][Tt][Ff]*)
+        _mm_ico_run="▶"; _mm_ico_ok="✔"; _mm_ico_fail="✘"; _mm_ico_warn="⚠"
+        ;;
+    *)
+        _mm_ico_run=">"; _mm_ico_ok="*"; _mm_ico_fail="x"; _mm_ico_warn="!"
+        ;;
+esac
+
 function _mm_time_now() {
     if [ -n "$EPOCHREALTIME" ]; then
         echo "${EPOCHREALTIME/,/.}"
@@ -143,12 +152,16 @@ function _mm_time_now() {
 }
 
 function _mm_time_elapsed() {
-    awk -v s="$1" -v e="$(_mm_time_now)" 'BEGIN {
-        d = e - s
-        if (d >= 3600)      printf "%dh %dmin %ds", int(d/3600), int(d%3600/60), int(d%60)
-        else if (d >= 60)   printf "%dmin %.1fs", int(d/60), d - int(d/60)*60
-        else                printf "%.1fs", d
-    }'
+    local _f _now _tenths _fmt _t0t=0
+    case "$1" in
+        *[.,]*)
+            _f="${1#*[.,]}"
+            _t0t=$(( ${1%%[.,]*} * 10 + ${_f:0:1} ))
+            ;;
+    esac
+    _mm_status_tenths "$1" "$_t0t"
+    _mm_status_fmt $_tenths
+    printf '%s' "$_fmt"
 }
 
 function _mm_kill_tree() {
@@ -178,6 +191,57 @@ function _mm_key_esc() {
     return 0
 }
 
+function _mm_sbar_begin() {
+    [ -n "$_mm_sbar_on" ] && return 1
+    { [ -t 1 ] && [ "$VKIT_SBAR_DISABLE" != "1" ] && { [ -z "$ZSH_VERSION" ] || zmodload -e zsh/system 2>/dev/null; }; } || return 1
+    local _sz="$(stty size < /dev/tty 2>/dev/null)"
+    local _rows="${_sz%% *}"
+    { [ -n "$_rows" ] && [ "$_rows" -ge 4 ]; } || return 1
+    _mm_sbar_stty="$(stty -g < /dev/tty 2>/dev/null)"
+    [ -n "$_mm_sbar_stty" ] && stty -echo -icanon min 1 time 0 < /dev/tty 2>/dev/null
+    if [ -n "$ZSH_VERSION" ]; then
+        _mm_sbar_trap0="${functions[TRAPINT]-}"
+        _mm_sbar_trap1=""
+        if [ -z "$_mm_sbar_trap0" ]; then
+            trap 2>/dev/null > "${TMPDIR:-/tmp}/.vkit_trap_$$"
+            _mm_sbar_trap1="$(grep " INT\$" "${TMPDIR:-/tmp}/.vkit_trap_$$" 2>/dev/null)"
+            rm -f "${TMPDIR:-/tmp}/.vkit_trap_$$"
+        fi
+        functions[TRAPINT]='_mm_sbar_end; kill -INT $$'
+    else
+        _mm_sbar_trap0="$(trap -p INT)"
+        _mm_sbar_trap1=""
+        trap '_mm_sbar_end; kill -INT $$' INT
+    fi
+    _mm_sbar_rows="$_rows"
+    _mm_sbar_on=1
+    printf '\033[?25l\n\0337\033[1;%dr\0338\033[A' $((_rows - 1))
+    return 0
+}
+
+function _mm_sbar_end() {
+    [ -n "$_mm_sbar_on" ] || return 0
+    _mm_sbar_on=""
+    if [ -n "$ZSH_VERSION" ]; then
+        if [ -n "$_mm_sbar_trap0" ]; then
+            functions[TRAPINT]="$_mm_sbar_trap0"
+        else
+            trap - INT
+            [ -n "$_mm_sbar_trap1" ] && eval "$_mm_sbar_trap1"
+        fi
+    else
+        trap - INT
+        [ -n "$_mm_sbar_trap0" ] && eval "$_mm_sbar_trap0"
+    fi
+    if [ -n "$_mm_sbar_stty" ]; then
+        stty -icanon min 0 time 0 < /dev/tty 2>/dev/null
+        dd if=/dev/tty of=/dev/null bs=4096 count=1 2>/dev/null
+        stty "$_mm_sbar_stty" < /dev/tty 2>/dev/null
+    fi
+    printf '\0337\033[%d;1H\033[2K\0338\0337\033[r\0338\033[?25h' "$_mm_sbar_rows"
+    unset _mm_sbar_on _mm_sbar_stty _mm_sbar_trap0 _mm_sbar_trap1 _mm_sbar_rows
+}
+
 function _mm_status_end() {
     trap - INT
     if [ -n "$_mm_trap0" ]; then
@@ -186,36 +250,109 @@ function _mm_status_end() {
         else
             eval "$_mm_trap0"
         fi
-    fi
-    if [ -n "$_mm_stty" ]; then
-        stty -icanon min 0 time 0 < /dev/tty 2>/dev/null
-        dd if=/dev/tty of=/dev/null bs=4096 count=1 2>/dev/null
-        stty "$_mm_stty" < /dev/tty 2>/dev/null
-        _mm_stty=""
+    elif [ -n "$_mm_trap1" ]; then
+        eval "$_mm_trap1"
     fi
     if [ "$_pinned" = "1" ]; then
-        [ "$_first" = "0" ] && printf '\n'
-        printf '\0337\033[%d;1H\033[2K\0338\0337\033[r\0338' "$_rows"
+        [ "$_first" = "0" ] && { printf '\n'; _first=1; }
     else
-        printf '\r\033[2K'
+        if [ -n "$_mm_stty" ]; then
+            stty -icanon min 0 time 0 < /dev/tty 2>/dev/null
+            dd if=/dev/tty of=/dev/null bs=4096 count=1 2>/dev/null
+            stty "$_mm_stty" < /dev/tty 2>/dev/null
+            _mm_stty=""
+        fi
+        printf '\r\033[2K\033[?25h'
     fi
-    printf '\033[?25h'
+}
+
+function _mm_status_tenths() {
+    if [ -n "$EPOCHREALTIME" ] && [ "$2" -ne 0 ]; then
+        _now="$EPOCHREALTIME"
+        _f="${_now#*[.,]}"
+        _tenths=$(( ${_now%%[.,]*} * 10 + ${_f:0:1} - $2 ))
+    else
+        _tenths=$(( ($(date +%s) - ${1%%[.,]*}) * 10 ))
+    fi
+}
+
+function _mm_status_fmt() {
+    local _ft=$1
+    local _fs=$((_ft / 10))
+    if [ $_fs -ge 3600 ]; then
+        _fmt="$((_fs / 3600))h $((_fs % 3600 / 60))min $((_fs % 60))s"
+    elif [ $_fs -ge 60 ]; then
+        _fmt="$((_fs / 60))min $((_fs % 60)).$((_ft % 10))s"
+    else
+        _fmt="$_fs.$((_ft % 10))s"
+    fi
+}
+
+function _mm_status_draw() {
+    local _fmt _spin _tot _r _avail _dn _dot="..."
+    _mm_status_tenths "$_t0" "$_t0t"
+    _spin="${_d:$(( _tenths % (${#_d} / _dw) * _dw )):_dw}"
+    if [ -n "$EPOCHREALTIME" ]; then
+        _now="$EPOCHREALTIME"
+        _f="${_now#*[.,]}"
+        _dn=$(( ( ${_now%%[.,]*} * 100 + 10#${_f:0:2} ) / 25 % 4 ))
+    else
+        _dn=$(( _tenths * 2 / 5 % 4 ))
+    fi
+    _mm_status_fmt $_tenths
+    _dot="${_dot:0:_dn}   "
+    _status="${_spin}[$_pkg] Building${_dot:0:3} [$_fmt]"
+    [ -n "$_progress" ] && _status="$_status [$_progress]"
+    _tot=""
+    if [ -n "$_tt0" ]; then
+        _mm_status_tenths "$_tt0" "$_tt0t"
+        _mm_status_fmt $_tenths
+        _tot="$_fmt"
+    fi
+    _avail=$((_cols - 1))
+    [ $_avail -lt 0 ] && _avail=0
+    _r=""
+    if [ $_avail -ge $(( ${#_cc} + 44 )) ]; then
+        _r="[$_cc]"
+        if [ -n "$_tot" ] && [ $_avail -ge $(( ${#_cc} + ${#_tot} + 54 )) ]; then
+            _r="[$_cc] [total: $_tot]"
+        fi
+        _avail=$((_avail - ${#_r} - 2))
+    fi
+    if [ ${#_status} -gt $_avail ]; then
+        if [ $_avail -gt 8 ]; then
+            _status="${_status:0:$((_avail - 3))}..."
+        else
+            _status="${_status:0:$_avail}"
+        fi
+    fi
+    [ "$_status|$_r" = "$_mm_status_last" ] && return 0
+    _mm_status_last="$_status|$_r"
+    if [ $_pinned -eq 1 ]; then
+        printf '\0337\033[%d;1H\033[1;97;48;5;39m%s\033[38;5;250m%*s\033[0m\0338' "$_rows" "$_status" $((_cols - ${#_status})) "$_r"
+    else
+        printf '\r\033[1;97;48;5;39m%s\033[38;5;250m%*s\033[0m' "$_status" $((_cols - ${#_status} - 1)) "$_r"
+    fi
 }
 
 function _mm_status_filter() {
     local _pkg="$1"
     local _t0="$2"
     local _progress="$__mm_status_progress"
-    local _stage="${_mm_stage:-Building}"
-    local _line _rc _sz _f _s _d _dw _now _chunk _t1s _done _tenths _status
+    local _line _rc _sz _f _d _dw _now _chunk _t1s _done _tenths _status
     local _buf="" _ret=130 _tick=0 _esc=0 _first=1 _pinned=0 _t0t=0
-    local _mm_trap0=""
+    local _mm_trap0="" _mm_trap1=""
     if [ -n "$ZSH_VERSION" ]; then
         _mm_trap0="${functions[TRAPINT]-}"
+        if [ -z "$_mm_trap0" ]; then
+            trap 2>/dev/null > "${TMPDIR:-/tmp}/.vkit_trap_$$"
+            _mm_trap1="$(grep " INT\$" "${TMPDIR:-/tmp}/.vkit_trap_$$" 2>/dev/null)"
+            rm -f "${TMPDIR:-/tmp}/.vkit_trap_$$"
+        fi
     else
         _mm_trap0="$(trap -p INT)"
     fi
-    local _rto=0.1
+    local _rto=0.05
     [ -n "$BASH_VERSION" ] && [ "${BASH_VERSINFO[0]}" -lt 4 ] && _rto=1
     _sz="$(stty size < /dev/tty 2>/dev/null)"
     local _rows="${_sz%% *}"
@@ -227,6 +364,19 @@ function _mm_status_filter() {
             _t0t=$(( ${_t0%%[.,]*} * 10 + ${_f:0:1} ))
             ;;
     esac
+    local _tt0="$__mm_status_total_t0"
+    local _tt0t=0
+    case "$_tt0" in
+        *[.,]*)
+            _f="${_tt0#*[.,]}"
+            _tt0t=$(( ${_tt0%%[.,]*} * 10 + ${_f:0:1} ))
+            ;;
+    esac
+    local _cc="ccache:off"
+    if [ "$VKIT_DISABLE_CCACHE" != "1" ] && [[ "$VKIT_PLATFORM" != qnx-* ]] && command -v ccache >/dev/null 2>&1; then
+        _cc="ccache:on"
+    fi
+    local _mm_status_last=""
     case "${LC_ALL:-${LC_CTYPE:-$LANG}}" in
         *[Uu][Tt][Ff]*)
             _d="⠉⠇⠈⡇⢀⡇⣀⡆⣄⡄⣆⡀⣇⠀⡏⠀⠏⠁⠋⠃"
@@ -237,14 +387,20 @@ function _mm_status_filter() {
             _dw=1
             ;;
     esac
-    local _mm_stty="$(stty -g < /dev/tty 2>/dev/null)"
-    [ -n "$_mm_stty" ] && stty -echo -icanon min 1 time 0 < /dev/tty 2>/dev/null
-    printf '\033[?25l'
-    if [ -n "$_rows" ] && [ "$_rows" -ge 4 ]; then
+    local _mm_stty=""
+    if [ -n "$_mm_sbar_on" ]; then
         _pinned=1
-        printf '\n\0337\033[1;%dr\0338\033[A' $((_rows - 1))
+        if [ -n "$_rows" ] && [ "$_rows" != "$_mm_sbar_rows" ]; then
+            printf '\0337\033[1;%dr\0338' $((_rows - 1))
+            _mm_sbar_rows="$_rows"
+        fi
+    else
+        _mm_stty="$(stty -g < /dev/tty 2>/dev/null)"
+        [ -n "$_mm_stty" ] && stty -echo -icanon min 1 time 0 < /dev/tty 2>/dev/null
+        printf '\033[?25l'
     fi
-    trap '_esc=2; [ -n "$_mm_bpid" ] && _mm_kill_tree "$_mm_bpid"; _mm_status_end' INT
+    trap '_esc=2' INT
+    _mm_status_draw
     while :; do
         [ $_esc -ne 0 ] && break
         _done=0
@@ -276,12 +432,12 @@ function _mm_status_filter() {
         while [ "${_buf#*$'\n'}" != "$_buf" ]; do
             _line="${_buf%%$'\n'*}"
             _buf="${_buf#*$'\n'}"
-            if [ "${_line#*__MM_RET__}" != "$_line" ]; then
-                _ret="${_line##*__MM_RET__}"
+            if [ "${_line#*__MM_RET_${_mm_key}__}" != "$_line" ]; then
+                _ret="${_line##*__MM_RET_${_mm_key}__}"
                 case "$_ret" in
                     ''|*[!0-9]*) _ret=1 ;;
                 esac
-                _line="${_line%%__MM_RET__*}"
+                _line="${_line%%__MM_RET_${_mm_key}__*}"
                 _done=1
                 [ -z "$_line" ] && break
             fi
@@ -294,6 +450,7 @@ function _mm_status_filter() {
                 fi
             else
                 printf '\r\033[2K%s\n' "$_line"
+                _mm_status_last=""
             fi
             [ $_done -eq 1 ] && break
         done
@@ -303,12 +460,12 @@ function _mm_status_filter() {
             if [ $_pinned -eq 1 ]; then
                 if [ $_first -eq 1 ]; then
                     _first=0
-                    printf '\033[1;33mStopping build (ESC pressed) ...\033[0m'
+                    printf '\033[1;33m%s Stopping build (ESC pressed)\033[0m' "$_mm_ico_warn"
                 else
-                    printf '\n\033[1;33mStopping build (ESC pressed) ...\033[0m'
+                    printf '\n\033[1;33m%s Stopping build (ESC pressed)\033[0m' "$_mm_ico_warn"
                 fi
             else
-                printf '\r\033[2K\033[1;33mStopping build (ESC pressed) ...\033[0m\n'
+                printf '\r\033[2K\033[1;33m%s Stopping build (ESC pressed)\033[0m\n' "$_mm_ico_warn"
             fi
             _mm_kill_tree "$_mm_bpid"
         fi
@@ -320,34 +477,33 @@ function _mm_status_filter() {
                 _rows="${_sz%% *}"
                 _cols="${_sz##* }"
                 printf '\n\0337\033[1;%dr\0338\033[A' $((_rows - 1))
+                _mm_sbar_rows="$_rows"
+                _mm_status_last=""
             fi
         fi
-        if [ -n "$EPOCHREALTIME" ] && [ $_t0t -ne 0 ]; then
-            _now="$EPOCHREALTIME"
-            _f="${_now#*[.,]}"
-            _tenths=$(( ${_now%%[.,]*} * 10 + ${_f:0:1} - _t0t ))
-        else
-            _tenths=$(( ($(date +%s) - ${_t0%%[.,]*}) * 10 ))
-        fi
-        _s=$((_tenths / 10))
-        if [ $_s -ge 3600 ]; then
-            _status="[$((_s / 3600))h $((_s % 3600 / 60))min $((_s % 60))s]"
-        elif [ $_s -ge 60 ]; then
-            _status="[$((_s / 60))min $((_s % 60)).$((_tenths % 10))s]"
-        else
-            _status="[$_s.$((_tenths % 10))s]"
-        fi
-        [ -n "$_progress" ] && _status="$_status [$_progress]"
-        _status="${_d:$(( _tenths % (${#_d} / _dw) * _dw )):_dw} $_status $_stage [$_pkg]"
-        if [ $_pinned -eq 1 ]; then
-            printf '\0337\033[%d;1H\033[1;97;48;5;39m %.*s\033[K\033[0m\0338' "$_rows" $((_cols - 2)) "$_status"
-        else
-            printf '\r\033[1;97;48;5;39m\033[2K%.*s\033[0m' $((_cols - 1)) "$_status"
-        fi
+        _mm_status_draw
     done
+    [ $_esc -eq 2 ] && [ -n "$_mm_bpid" ] && _mm_kill_tree "$_mm_bpid"
     _mm_status_end
     [ $_esc -ne 0 ] && _ret=130
     return $_ret
+}
+
+function _mm_cmake_project() {
+    if [ ! -f "$VKIT_BUILD_DIR/$_project/CMakeCache.txt" ]; then
+        cmake -S "$_project_dir" -B "$VKIT_BUILD_DIR/$_project" -DCMAKE_TOOLCHAIN_FILE="$VKIT_ROOT_DIR/cmake/toolchain.cmake" "$@" || return $?
+    fi
+    cmake --build "$VKIT_BUILD_DIR/$_project" -j"$VKIT_BUILD_CPU_CORE" || return $?
+    if [ "$VKIT_STRIP" = "1" ]; then
+        cmake --install "$VKIT_BUILD_DIR/$_project" --strip >/dev/null
+    else
+        cmake --install "$VKIT_BUILD_DIR/$_project" >/dev/null
+    fi
+}
+
+function _mm_shell_project() {
+    mkdir -p "$VKIT_BUILD_DIR/$_project" && cp -rf "$_project_dir"/* "$VKIT_BUILD_DIR/$_project/" || return $?
+    "$VKIT_BUILD_DIR/$_project/build.sh" "$@"
 }
 
 function _mm_run() {
@@ -355,8 +511,10 @@ function _mm_run() {
         local _mm_fifo="${TMPDIR:-/tmp}/.vkit_mm_$$_$RANDOM"
         local _mm_bpid=""
         local _mm_rc=0
+        local _mm_key=""
         mkfifo "$_mm_fifo" 2>/dev/null || { "$@"; return $?; }
-        _mm_bpid=$( ( ( exec >/dev/null 2>&1; exec > "$_mm_fifo"; "$@" 2>&1; printf '__MM_RET__%s\n' "$?" ) & echo $! ) )
+        _mm_key="${$}_${RANDOM}"
+        _mm_bpid=$( ( ( exec >/dev/null 2>&1; exec > "$_mm_fifo"; "$@" 2>&1; printf '__MM_RET_%s__%s\n' "$_mm_key" "$?" ) & echo $! ) )
         _mm_status_filter "$_project" "$_mm_t0" < "$_mm_fifo"
         _mm_rc=$?
         rm -f "$_mm_fifo"
@@ -396,16 +554,16 @@ function mm() {
         _build_type=1 # build.sh
     elif [ -f "$_project_dir/Makefile" ]; then
         _build_type=2 # Makefile
-        [ "$_project_dir" = "$VKIT_ROOT_DIR" ] && echo -e "\033[1m\033[31mError: Can not mm project [$_project_dir]!\033[0m" && return 1
+        [ "$_project_dir" = "$VKIT_ROOT_DIR" ] && echo -e "\033[1;31m$_mm_ico_fail Error: Can not mm project [$_project_dir]!\033[0m" && return 1
     elif [ -n "$__cache_mm_dir" ] && [ -z "$(ls -A "$_project_dir")" ]; then
-        echo -e "\033[1m\033[33m=== Note: Skip [$_project] ===\033[0m"
+        echo -e "\033[1;33m$_mm_ico_warn [$_project] Skipped\033[0m"
         return 0
     else
-        echo -e "\033[1m\033[31mError: Can not mm project [$_project_dir]!\033[0m" && return 1
+        echo -e "\033[1;31m$_mm_ico_fail Error: Can not mm project [$_project_dir]!\033[0m" && return 1
     fi
     if [ "$1" = "clean" ]; then
         if [ -d "$VKIT_BUILD_DIR/$_project" ]; then
-            echo -e "\033[1m\033[34m=== Clean [$_project] ===\033[0m"
+            echo -e "\033[1;32m$_mm_ico_ok [$_project] Cleaned...\033[0m"
             if [ $_build_type -eq 2 ]; then
                 make -C "$_project_dir" clean
             fi
@@ -414,7 +572,7 @@ function mm() {
         return 0
     elif [ "$1" = "dclean" ]; then
         if [ -d "$VKIT_BUILD_DIR/$_project" ]; then
-            echo -e "\033[1m\033[34m=== Clean [$_project] ===\033[0m"
+            echo -e "\033[1;32m$_mm_ico_ok [$_project] Cleaned...\033[0m"
             if [ $_build_type -eq 0 ]; then
                 cmake --build "$VKIT_BUILD_DIR/$_project" --target __uninstall
             elif [ $_build_type -eq 2 ]; then
@@ -425,9 +583,10 @@ function mm() {
         return 0
     else
         local _mm_ret=0
-        local _mm_stage="Building"
         local _mm_t0="$(_mm_time_now)"
-        echo -e "\n\033[1m\033[34m=== Build [$_project] ===\033[0m"
+        local _mm_own=""
+        _mm_sbar_begin && _mm_own=1
+        echo -e "\n\033[1;34m$_mm_ico_run [$_project] Building...\033[0m"
         if [ $_build_type -eq 0 ]; then
             local _has_target=0
             local _a
@@ -440,38 +599,20 @@ function mm() {
             if [ $_has_target -eq 1 ]; then
                 _mm_run cmake --build "$VKIT_BUILD_DIR/$_project" -j"$VKIT_BUILD_CPU_CORE" "$@"
             else
-                if [ ! -f "$VKIT_BUILD_DIR/$_project/CMakeCache.txt" ]; then
-                    _mm_stage="Configuring"
-                    _mm_run cmake -S "$_project_dir" -B "$VKIT_BUILD_DIR/$_project" -DCMAKE_TOOLCHAIN_FILE="$VKIT_ROOT_DIR/cmake/toolchain.cmake" "$@"
-                    if [ $? -ne 0 ]; then
-                        echo -e "\n\033[1m\033[31m=== Build [$_project] failed [$(_mm_time_elapsed "$_mm_t0")] ===\033[0m"
-                        return 1
-                    fi
-                fi
-                _mm_stage="Building"
-                _mm_run cmake --build "$VKIT_BUILD_DIR/$_project" -j"$VKIT_BUILD_CPU_CORE"
-                if [ $? -ne 0 ]; then
-                    echo -e "\n\033[1m\033[31m=== Build [$_project] failed [$(_mm_time_elapsed "$_mm_t0")] ===\033[0m"
-                    return 1
-                fi
-                if [ "$VKIT_STRIP" = "1" ]; then
-                    cmake --install "$VKIT_BUILD_DIR/$_project" --strip >/dev/null
-                else
-                    cmake --install "$VKIT_BUILD_DIR/$_project" >/dev/null
-                fi
+                _mm_run _mm_cmake_project "$@"
             fi
         elif [ $_build_type -eq 1 ]; then
-            mkdir -p "$VKIT_BUILD_DIR/$_project" && cp -rf "$_project_dir"/* "$VKIT_BUILD_DIR/$_project/"
-            _mm_run "$VKIT_BUILD_DIR/$_project/build.sh" "$@"
+            _mm_run _mm_shell_project "$@"
         elif [ $_build_type -eq 2 ]; then
             _mm_run make -C "$_project_dir" "$@" -j"$VKIT_BUILD_CPU_CORE"
         fi
         _mm_ret=$?
+        [ -n "$_mm_own" ] && _mm_sbar_end
         if [ $_mm_ret -ne 0 ]; then
-            echo -e "\n\033[1m\033[31m=== Build [$_project] failed [$(_mm_time_elapsed "$_mm_t0")] ===\033[0m"
+            echo -e "\n\033[1;31m$_mm_ico_fail [$_project] Build failed [$(_mm_time_elapsed "$_mm_t0")]\033[0m"
             return 1
         fi
-        echo -e "\033[1m\033[32m=== Finished [$_project] [$(_mm_time_elapsed "$_mm_t0")] ===\033[0m"
+        echo -e "\033[1;32m$_mm_ico_ok [$_project] Finished [$(_mm_time_elapsed "$_mm_t0")]\033[0m"
         echo -e ""
         return 0
     fi
@@ -483,7 +624,7 @@ function _mm_for_cfg() {
     [ $# -ge 1 ] && shift
     [ $# -ge 1 ] && shift
     local _reval=0
-    [ ! -f "$_path" ] && echo -e "\033[1m\033[31mError: Path [$_path] not exists!\033[0m" && return 1
+    [ ! -f "$_path" ] && echo -e "\033[1;31m$_mm_ico_fail Error: Path [$_path] not exists!\033[0m" && return 1
     local lines=()
     while read _line || [[ -n "$_line" ]]; do
         _line="${_line#"${_line%%[![:space:]]*}"}"
@@ -493,6 +634,9 @@ function _mm_for_cfg() {
     local _total=${#lines[@]}
     local _idx=0
     local _t0="$(_mm_time_now)"
+    local __mm_status_total_t0="${__mm_status_total_t0:-$_t0}"
+    local _mm_own=""
+    [ "$_arg" != "clean" ] && _mm_sbar_begin && _mm_own=1
     for _line in "${lines[@]}"; do
         _idx=$((_idx + 1))
         local _project=$(echo "$_line" | cut -d ";" -f 1)
@@ -500,8 +644,8 @@ function _mm_for_cfg() {
         local __cache_mm_project="$_project"
         local __cache_mm_dir="$VKIT_ROOT_DIR/$_project"
         local __mm_status_progress="$_idx/$_total"
-        [ -z "$_project" ] && echo -e "Warning: Split line [$_line] failed!" && continue
-        [ ! -d "$__cache_mm_dir" ] && echo -e "\033[1m\033[33m=== Note: Skip [$_project] ===\033[0m" && continue
+        [ -z "$_project" ] && echo -e "\033[1;33m$_mm_ico_warn Warning: Split line [$_line] failed!\033[0m" && continue
+        [ ! -d "$__cache_mm_dir" ] && echo -e "\033[1;33m$_mm_ico_warn [$_project] Skipped\033[0m" && continue
         if [ "$_arg" = "clean" ]; then
             mm clean
         elif [ -n "$_arg" ]; then
@@ -511,11 +655,12 @@ function _mm_for_cfg() {
         fi
         [ $? -ne 0 ] && _reval=1 && break
     done
+    [ -n "$_mm_own" ] && _mm_sbar_end
     if [ "$_arg" != "clean" ] && [ $_total -gt 0 ]; then
         if [ $_reval -eq 0 ]; then
-            echo -e "\033[1m\033[32m=== Summary: $_total projects finished [$(_mm_time_elapsed "$_t0")] ===\033[0m\n"
+            echo -e "\033[1;32m$_mm_ico_ok Summary: $_total projects finished [$(_mm_time_elapsed "$_t0")]\033[0m\n"
         else
-            echo -e "\033[1;97;41mSummary: stopped at [$_idx/$_total] [$(_mm_time_elapsed "$_t0")]\033[0m\n"
+            echo -e "\033[1;33m$_mm_ico_warn Summary: stopped at [$(_mm_time_elapsed "$_t0")] [$_idx/$_total]\033[0m\n"
         fi
     fi
     return $_reval
@@ -524,7 +669,7 @@ function _mm_for_cfg() {
 function _mmm_get_cfg() {
     local _path="$1"
     local _pwd="$2"
-    [ ! -f "$_path" ] && echo -e "\033[1m\033[31mError: Path [$_path] not exists!\033[0m" && return 1
+    [ ! -f "$_path" ] && echo -e "\033[1;31m$_mm_ico_fail Error: Path [$_path] not exists!\033[0m" && return 1
     local lines=()
     while read _line || [[ -n "$_line" ]]; do
         _line="${_line#"${_line%%[![:space:]]*}"}"
@@ -598,37 +743,29 @@ function mm_app() {
 
 function mm_all() {
     local _has_component=0
-    if [ -f "$VKIT_PLATFORM_CONFIG_DIR/thirdparty.cfg" ]; then
+    local _reval=0
+    local _c
+    local __mm_status_total_t0="$(_mm_time_now)"
+    local _mm_own=""
+    [ "$1" != "clean" ] && _mm_sbar_begin && _mm_own=1
+    for _c in thirdparty vendor middleware app; do
+        [ -f "$VKIT_PLATFORM_CONFIG_DIR/$_c.cfg" ] || continue
         _has_component=1
-        mm_thirdparty "$@"
-        [ $? -ne 0 ] && return 1
-    fi
-    if [ -f "$VKIT_PLATFORM_CONFIG_DIR/vendor.cfg" ]; then
-        _has_component=1
-        mm_vendor "$@"
-        [ $? -ne 0 ] && return 1
-    fi
-    if [ -f "$VKIT_PLATFORM_CONFIG_DIR/middleware.cfg" ]; then
-        _has_component=1
-        mm_middleware "$@"
-        [ $? -ne 0 ] && return 1
-    fi
-    if [ -f "$VKIT_PLATFORM_CONFIG_DIR/app.cfg" ]; then
-        _has_component=1
-        mm_app "$@"
-        [ $? -ne 0 ] && return 1
-    fi
+        mm_$_c "$@"
+        [ $? -ne 0 ] && _reval=1 && break
+    done
+    [ -n "$_mm_own" ] && _mm_sbar_end
     if [ $_has_component -eq 0 ]; then
-        echo -e "\033[1m\033[31mError: Can not find any project to build!\033[0m" && return 1
+        echo -e "\033[1;31m$_mm_ico_fail Error: Can not find any project to build!\033[0m" && return 1
     fi
-    return 0
+    return $_reval
 }
 
 function mmm() {
     local _project_dir="$(pwd)"
     local __cache_mmm_cfg=
     _mmm_ll_cfg "$_project_dir"
-    [ $? -ne 0 ] && echo -e "\033[1m\033[31mError: Can not mmm project [$_project_dir]!\033[0m" && return 1
+    [ $? -ne 0 ] && echo -e "\033[1;31m$_mm_ico_fail Error: Can not mmm project [$_project_dir]!\033[0m" && return 1
     if [ "$1" = "clean" ]; then
         mm clean
     else
@@ -657,7 +794,7 @@ function mmmc() {
 function llcfg() {
     local _project_dir="$(pwd)"
     _mmm_ll_cfg "$_project_dir"
-    [ $? -ne 0 ] && echo -e "\033[1m\033[31mError: Can not find cfg [$_project_dir]!\033[0m" && return 1
+    [ $? -ne 0 ] && echo -e "\033[1;31m$_mm_ico_fail Error: Can not find cfg [$_project_dir]!\033[0m" && return 1
     local _print_result=$(echo -e "$__cache_mmm_cfg" | sed -E 's/^[[:space:]]+|[[:space:]]+$//g')
     local _print_result=$(echo -e "$_print_result" | sed -E 's/[[:space:]]+/\ \\\n\ \ \ /g')
     echo "mm $_print_result"
@@ -702,7 +839,7 @@ function build() {
         VKIT_PACKUP_SDK=1 "$VKIT_ROOT_DIR/deploy/vkit-deploy.sh"
         [ $? -ne 0 ] && return 1
     else
-        echo -e "\033[1m\033[31mError: Unsupported command!\033[0m"
+        echo -e "\033[1;31m$_mm_ico_fail Error: Unsupported command!\033[0m"
         return 1
     fi
     return 0
@@ -752,18 +889,18 @@ fi
 
 if [ "$1" = "import" ]; then
     if [ -z "$2" ]; then
-        echo -e "\033[1m\033[31mError: 'import' requires a repo set name (e.g. 'make import dev')!\033[0m"
+        echo -e "\033[1;31m$_mm_ico_fail Error: 'import' requires a repo set name (e.g. 'make import dev')!\033[0m"
         exit 1
     fi
     if ! command -v git-lfs &> /dev/null; then
-        echo -e "\033[33mWarning: git-lfs is not installed.\033[0m"
+        echo -e "\033[33m$_mm_ico_warn Warning: git-lfs is not installed.\033[0m"
     fi
     if ! command -v "$VKIT_VCS_TOOL" &> /dev/null; then
-        echo -e "\033[1m\033[31mError: Can not find $VKIT_VCS_TOOL command!\033[0m"
+        echo -e "\033[1;31m$_mm_ico_fail Error: Can not find $VKIT_VCS_TOOL command!\033[0m"
         exit 1
     fi
     if [ ! -d "$VKIT_ROOT_DIR/repos/$2" ]; then
-        echo -e "\033[1m\033[31mError: Can not find repo [$VKIT_ROOT_DIR/repos/$2]!\033[0m"
+        echo -e "\033[1;31m$_mm_ico_fail Error: Can not find repo [$VKIT_ROOT_DIR/repos/$2]!\033[0m"
         exit 1
     fi
     echo -e "Please wait..."
@@ -776,14 +913,14 @@ if [ "$1" = "import" ]; then
     exit 0
 elif [ "$1" = "import_dev" ]; then
     if ! command -v git-lfs &> /dev/null; then
-        echo -e "\033[33mWarning: git-lfs is not installed.\033[0m"
+        echo -e "\033[33m$_mm_ico_warn Warning: git-lfs is not installed.\033[0m"
     fi
     if ! command -v "$VKIT_VCS_TOOL" &> /dev/null; then
-        echo -e "\033[1m\033[31mError: Can not find $VKIT_VCS_TOOL command!\033[0m"
+        echo -e "\033[1;31m$_mm_ico_fail Error: Can not find $VKIT_VCS_TOOL command!\033[0m"
         exit 1
     fi
     if [ ! -d "$VKIT_ROOT_DIR/repos/dev" ]; then
-        echo -e "\033[1m\033[31mError: Can not find repo [$VKIT_ROOT_DIR/repos/dev]!\033[0m"
+        echo -e "\033[1;31m$_mm_ico_fail Error: Can not find repo [$VKIT_ROOT_DIR/repos/dev]!\033[0m"
         exit 1
     fi
     echo -e "Please wait..."
@@ -796,14 +933,14 @@ elif [ "$1" = "import_dev" ]; then
     exit 0
 elif [ "$1" = "import_full" ]; then
     if ! command -v git-lfs &> /dev/null; then
-        echo -e "\033[33mWarning: git-lfs is not installed.\033[0m"
+        echo -e "\033[33m$_mm_ico_warn Warning: git-lfs is not installed.\033[0m"
     fi
     if ! command -v "$VKIT_VCS_TOOL" &> /dev/null; then
-        echo -e "\033[1m\033[31mError: Can not find $VKIT_VCS_TOOL command!\033[0m"
+        echo -e "\033[1;31m$_mm_ico_fail Error: Can not find $VKIT_VCS_TOOL command!\033[0m"
         exit 1
     fi
     if [ ! -d "$VKIT_ROOT_DIR/repos/full" ]; then
-        echo -e "\033[1m\033[31mError: Can not find repo [$VKIT_ROOT_DIR/repos/full]!\033[0m"
+        echo -e "\033[1;31m$_mm_ico_fail Error: Can not find repo [$VKIT_ROOT_DIR/repos/full]!\033[0m"
         exit 1
     fi
     echo -e "Please wait..."
@@ -816,10 +953,10 @@ elif [ "$1" = "import_full" ]; then
     exit 0
 elif [ "$1" = "pull" ]; then
     if ! command -v git-lfs &> /dev/null; then
-        echo -e "\033[33mWarning: git-lfs is not installed.\033[0m"
+        echo -e "\033[33m$_mm_ico_warn Warning: git-lfs is not installed.\033[0m"
     fi
     if ! command -v "$VKIT_VCS_TOOL" &> /dev/null; then
-        echo -e "\033[1m\033[31mError: Can not find $VKIT_VCS_TOOL command!\033[0m"
+        echo -e "\033[1;31m$_mm_ico_fail Error: Can not find $VKIT_VCS_TOOL command!\033[0m"
         exit 1
     fi
     echo -e "Please wait..."
