@@ -340,7 +340,7 @@ function _mm_status_filter() {
     local _t0="$2"
     local _progress="$__mm_status_progress"
     local _line _rc _sz _f _d _dw _now _chunk _t1s _done _tenths _status
-    local _buf="" _ret=130 _tick=0 _esc=0 _first=1 _pinned=0 _t0t=0
+    local _buf="" _ret=130 _tick=0 _esc=0 _first=1 _pinned=0 _t0t=0 _ninja_progress=0
     local _mm_trap0="" _mm_trap1=""
     if [ -n "$ZSH_VERSION" ]; then
         _mm_trap0="${functions[TRAPINT]-}"
@@ -442,11 +442,22 @@ function _mm_status_filter() {
                 [ -z "$_line" ] && break
             fi
             if [ $_pinned -eq 1 ]; then
-                if [ $_first -eq 1 ]; then
+                if [[ "$_line" =~ ^\[[0-9]+/[0-9]+\]\  ]]; then
+                    if [ $_ninja_progress -eq 1 ]; then
+                        printf '\r\033[2K%s' "$_line"
+                    elif [ $_first -eq 1 ]; then
+                        _first=0
+                        printf '%s' "$_line"
+                    else
+                        printf '\n%s' "$_line"
+                    fi
+                    _ninja_progress=1
+                elif [ $_first -eq 1 ]; then
                     _first=0
                     printf '%s' "$_line"
                 else
                     printf '\n%s' "$_line"
+                    _ninja_progress=0
                 fi
             else
                 printf '\r\033[2K%s\n' "$_line"
